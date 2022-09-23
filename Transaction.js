@@ -6,28 +6,33 @@ import MenuItem from "@mui/material/MenuItem";
 import FormControl from "@mui/material/FormControl";
 import Select, { SelectChangeEvent } from "@mui/material/Select";
 
-import './style.css';
-import TextField from '@mui/material/TextField';
+import "./style.css";
+import TextField from "@mui/material/TextField";
 
 export default function Transaction() {
   const [transaction, setTransaction] = useState({
-    customerId: "",
+    senderId: "",
     currencyCode: "",
     senderBankId: "",
     receiverBankId: "",
     reciverAccountHolderNumber: "",
+    reciverAccountHolderName: "", //change1
     transferType: "",
     message: "",
     amount: "",
   });
 
   //validating form input
-  const [idError,setIdError]=useState('');
-  const [bankIdError,setBankIdError]=useState('')
+  const [idError, setIdError] = useState("");
+  const [bankIdError, setBankIdError] = useState("");
 
-  const [customerId, setCustomerId] = useState();
-  const [senderBankId, setSenderBankId] = useState();
+  const [customerId, setCustomerId] = useState("");
+  const [senderBankId, setSenderBankId] = useState("");
+  const [currencyCode, setCurrencyCode] = useState("");
+  const [message, setMessage] = useState();
+  const [amount, setAmount] = useState("");
   const [receiverBankId, setReceiverBankId] = useState();
+  const [senderName, setSenderName] = useState(); //change 2
   const [sender, setSender] = useState({
     senderId: "",
     senderName: "",
@@ -43,33 +48,27 @@ export default function Transaction() {
   });
   const [currencyObj, setCurrencyObj] = useState();
   const [transferTypeObj, setTransferObj] = useState();
-  const [messageCode, setMessageCode] = useState();
+  const [messageCode, setMessageCode] = useState("");
   const [transferType, setTransferType] = useState();
+  const [receiverName, setReceiverName] = useState();
+  const [receiverId, setReceiverId] = useState();
 
-
-
- const [transferVisibility, setTransferVisibility] = useState(false);
+  const [transferVisibility, setTransferVisibility] = useState(false);
   const [receiverVisibility, setReceiverVisibility] = useState(false);
   const [senderBankVisibility, setSenderBankVisibility] = useState(false);
   const [receiverBankVisibility, setReceiverBankVisibility] = useState(false);
 
-
-
- useEffect(() => {
+  useEffect(() => {
     // Update the document title using the browser API
     console.log("tdagsyhj");
     getCustomer();
   }, [customerId]);
 
-
-
- const getCustomer = (e) => {
+  const getCustomer = (e) => {
     axios
       .get("http://localhost:8080/dbsapi/customer/" + customerId)
 
-
-
-     .then((res) => {
+      .then((res) => {
         setSender({
           senderId: res.data.customerId,
           senderName: res.data.customerName,
@@ -83,9 +82,7 @@ export default function Transaction() {
       });
   };
 
-
-
- useEffect(() => {
+  useEffect(() => {
     // Update the document title using the browser API
     console.log("tdagsyhj");
     getSenderBank();
@@ -94,12 +91,10 @@ export default function Transaction() {
     axios
       .get("http://localhost:8080/dbsapi/bank/" + senderBankId)
 
-
-
-     .then((res) => {
+      .then((res) => {
         setSenderBankId(res.data);
         setSenderBankDetails({
-          bankId: res.data.bankId,
+          bankId: res.data.bic,
           bankName: res.data.bankName,
         });
       })
@@ -116,11 +111,9 @@ export default function Transaction() {
     axios
       .get("http://localhost:8080/dbsapi/bank/" + receiverBankId)
 
-
-
-     .then((res) => {
+      .then((res) => {
         setReceiverBankDetails({
-          bankId: res.data.bankId,
+          bankId: res.data.bic,
           bankName: res.data.bankName,
         });
         setReceiverVisibility(true);
@@ -134,13 +127,22 @@ export default function Transaction() {
       });
   };
 
-
-
- const sendDataToAPI = (e) => {
+  const sendDataToAPI = (e) => {
     axios
       .post(
         "http://localhost:8080/dbsapi/transaction",
-        {},
+        {
+          senderId: sender.senderId,
+          currencyCode: currencyCode,
+          senderBankId: senderBankDetails.bankId,
+          receiverBankId: receiverBankDetails.bankId,
+          reciverAccountHolderNumber: receiverId,
+          reciverAccountHolderName: receiverName,
+
+          transferType: transferType,
+          message: messageCode,
+          amount: amount,
+        },
         { headers: { "Content-Type": "application/json; charset=utf-8" } }
       )
       .then((res) => {
@@ -158,7 +160,6 @@ export default function Transaction() {
     });
   };
 
-
   // let validate=false
   // const validateId=()=>{
   //     if(customerId.length<=7){
@@ -167,11 +168,11 @@ export default function Transaction() {
   //     }
   // }
 
- const onChangeCustomer = (e) => {
+  const onChangeCustomer = (e) => {
     e.preventDefault();
 
     //validating for 7 chars
-    // if(e.target.value.length<=7){  
+    // if(e.target.value.length<=7){
     //   setIdError("Id must be atleast 8 characters")
     // }
 
@@ -187,7 +188,7 @@ export default function Transaction() {
       setIdError("Id must be atleast 8 digits");
     }
   };
-const onChangeSenderBank = (e) => {
+  const onChangeSenderBank = (e) => {
     e.preventDefault();
     if (e.target.value.length > 10) {
       setSenderBankId(e.target.value);
@@ -204,9 +205,7 @@ const onChangeSenderBank = (e) => {
   const onChangeReceiverBank = (e) => {
     e.preventDefault();
 
-
-
-   if (e.target.value.length > 10) {
+    if (e.target.value.length > 10) {
       setReceiverBankId(e.target.value);
     } else {
       setReceiverBankDetails({
@@ -225,44 +224,68 @@ const onChangeSenderBank = (e) => {
       setReceiverVisibility(false);
     }
   };
+  const onChangeReciverId = (e) => {
+    e.preventDefault();
+    setReceiverId(e.target.value);
+  };
   const onChangeMessageCode = (e) => {
     e.preventDefault();
     setMessageCode(e.target.value);
   };
+  const onChangeAmount = (e) => {
+    e.preventDefault();
+    setAmount(e.target.value);
+  };
+  const onChangeReciverName = (e) => {
+    e.preventDefault();
+    setReceiverName(e.target.value);
+  };
+  const onChangeCurrencyCode = (e) => {
+    e.preventDefault();
+    setCurrencyCode(e.target.value);
+    console.log(currencyCode);
+  };
   return (
     <div>
-      <div class ="card">
-      <Form>
-        <Form.Field>
-          <h3>Sender Details</h3>
-          <label>Sender Id </label>
-          {/* <input name="customerId" onChange={onChangeCustomer} /> */}
-          <TextField
-         error={idError?true:false}
-         id="outlined-basic" label="Sender Id" variant="outlined" 
-         onChange={onChangeCustomer} helperText={idError}/>
-        </Form.Field>
-      </Form>
-      </div>
-
-
-     {senderBankVisibility && (
-       <div class="card">
+      <div class="card">
         <Form>
-          <h3>Sender name : {sender.senderName}</h3>
-          <h3>Sender balance : {sender.senderBalance}</h3>
           <Form.Field>
-            <h3>Sender Bank Details</h3>
-            <label>Sender Bank Id </label>
-            
-            {/* <input name="senderBankId" onChange={onChangeSenderBank} /> */}
-            
+            <h3>Sender Details</h3>
+            <label>Sender Id </label>
+            {/* <input name="customerId" onChange={onChangeCustomer} /> */}
             <TextField
-         error={bankIdError?true:false}
-         id="outlined-basic" label="Sender Bank Id" variant="outlined" 
-         onChange={onChangeSenderBank} helperText={bankIdError}/>
+              error={idError ? true : false}
+              id="outlined-basic"
+              label="Sender Id"
+              variant="outlined"
+              onChange={onChangeCustomer}
+              helperText={idError}
+            />
           </Form.Field>
         </Form>
+      </div>
+
+      {senderBankVisibility && (
+        <div class="card">
+          <Form>
+            <h3>Sender name : {sender.senderName}</h3>
+            <h3>Sender balance : {sender.senderBalance}</h3>
+            <Form.Field>
+              <h3>Sender Bank Details</h3>
+              <label>Sender Bank Id </label>
+
+              {/* <input name="senderBankId" onChange={onChangeSenderBank} /> */}
+
+              <TextField
+                error={bankIdError ? true : false}
+                id="outlined-basic"
+                label="Sender Bank Id"
+                variant="outlined"
+                onChange={onChangeSenderBank}
+                helperText={bankIdError}
+              />
+            </Form.Field>
+          </Form>
         </div>
       )}
       {transferVisibility && (
@@ -311,43 +334,50 @@ const onChangeSenderBank = (e) => {
             <label>Amount </label>
             {/* <input name="amount" onChange={onChangeTranscation} /> */}
             <TextField
-        //  error={idError?true:false}
-         id="outlined-basic" label="Amount" variant="outlined" 
-         onChange={onChangeTranscation}/>
+              //  error={idError?true:false}
+              id="outlined-basic"
+              label="Amount"
+              value={amount}
+              variant="outlined"
+              onChange={onChangeAmount}
+            />
           </Form.Field>
           <Form.Field>
             <br></br>
             <label>Currency </label>
             {/* <input name="currency" onChange={onChangeTranscation} /> */}
-            <TextField 
-            //  error={idError?true:false}
-            id="outlined-basic" label="Currency" variant="outlined" 
-            onChange={onChangeTranscation}/>
+            <TextField
+              //  error={idError?true:false}
+              id="outlined-basic"
+              label="Currency"
+              variant="outlined"
+              value={currencyCode}
+              onChange={onChangeCurrencyCode}
+            />
           </Form.Field>{" "}
         </div>
       )}
 
-
-
-     {receiverBankVisibility && (
-       <div class="card">
-        <Form>
-          <Form.Field>
-            <h3>Receiver Bank </h3>
-            <label>Receiver Bank Id </label>
-            {/* <input name="senderBankId" onChange={onChangeReceiverBank} /> */}
-            <TextField 
-            //  error={idError?true:false}
-            id="outlined-basic" label="Receiver bank id" variant="outlined" 
-            onChange={onChangeReceiverBank}/>
-          </Form.Field>
-        </Form>
+      {receiverBankVisibility && (
+        <div class="card">
+          <Form>
+            <Form.Field>
+              <h3>Receiver Bank </h3>
+              <label>Receiver Bank Id </label>
+              {/* <input name="senderBankId" onChange={onChangeReceiverBank} /> */}
+              <TextField
+                //  error={idError?true:false}
+                id="outlined-basic"
+                label="Receiver bank id"
+                variant="outlined"
+                onChange={onChangeReceiverBank}
+              />
+            </Form.Field>
+          </Form>
         </div>
       )}
 
-
-
-     {receiverVisibility && (
+      {receiverVisibility && (
         <Form>
           <h3>Receiver bank name : {receiverBankDetails.bankName}</h3>
           <Form.Field>
@@ -356,13 +386,13 @@ const onChangeSenderBank = (e) => {
               name="reciverAccountHolderNumber"
               onChange={onChangeTranscation}
             /> */}
-            <TextField 
-            //  error={idError?true:false}
-            id="outlined-basic" label="Receiver account number" variant="outlined" 
-            onChange={onChangeTranscation}/>
-
-
-
+            <TextField
+              //  error={idError?true:false}
+              id="outlined-basic"
+              label="Receiver account number"
+              variant="outlined"
+              onChange={onChangeReciverId}
+            />
           </Form.Field>
           <Form.Field>
             <label>ReceiverAccountHolderName </label>
@@ -370,15 +400,16 @@ const onChangeSenderBank = (e) => {
               name="receiverAccountHolderName"
               onChange={onChangeTranscation}
             /> */}
-            <TextField 
-            //  error={idError?true:false}
-            id="outlined-basic" label="Receiver name" variant="outlined" 
-            onChange={onChangeTranscation}/>
+            <TextField
+              //  error={idError?true:false}
+              id="outlined-basic"
+              label="Receiver name"
+              variant="outlined"
+              onChange={onChangeReciverName}
+            />
           </Form.Field>
 
-
-
-         <Button type="submit" onClick={sendDataToAPI}>
+          <Button type="submit" onClick={sendDataToAPI}>
             Submit
           </Button>
         </Form>
