@@ -1,0 +1,17 @@
+html {
+    background-color: #e9f1f1;
+}
+.card {
+    background-color: #7de9e3;
+    box-shadow: 0 4px 8px 0 #0b0b0b91;
+    max-width: 500px; 
+    margin: auto;
+    text-align: center;
+    font-family: arial;
+    padding:30px;
+    margin-top: 6px;
+    border-radius: 10px;
+    font-family:-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell,
+         'Open Sans', 'Helvetica Neue', sans-serif;
+    
+}
