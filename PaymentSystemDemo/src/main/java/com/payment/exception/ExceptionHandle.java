@@ -8,5 +8,6 @@ public class ExceptionHandle extends RuntimeException{
         this.message = message;
     }
     public ExceptionHandle() {
+    	super();
     }
 }

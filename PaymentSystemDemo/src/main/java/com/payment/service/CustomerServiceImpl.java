@@ -47,5 +47,11 @@ public class CustomerServiceImpl implements CustomerService{
 		
 	}
 	
+	@Override
+    public Customer getCustomer(long customerId) {
+        // TODO Auto-generated method stub
+        return customerRepository.getCustomer(customerId);
+    }
+	
 	
 }
