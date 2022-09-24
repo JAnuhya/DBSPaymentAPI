@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Form, Button } from "semantic-ui-react";
+import { Form } from "semantic-ui-react";
 import axios from "axios";
 import InputLabel from "@mui/material/InputLabel";
 import MenuItem from "@mui/material/MenuItem";
@@ -8,8 +8,16 @@ import Select, { SelectChangeEvent } from "@mui/material/Select";
 
 import "./style.css";
 import TextField from "@mui/material/TextField";
+import Button from '@mui/material/Button';
+import ShowTransaction from './ShowTransaction';
+import { useNavigate } from "react-router";
+
+import SendIcon from '@mui/icons-material/Send';
+
+
 
 export default function Transaction() {
+  const navigation=useNavigate();
   const [transaction, setTransaction] = useState({
     senderId: "",
     currencyCode: "",
@@ -24,6 +32,7 @@ export default function Transaction() {
 
   //validating form input
   const [idError, setIdError] = useState("");
+  const [recIdError,setRecIdError]=useState("");
   const [bankIdError, setBankIdError] = useState("");
 
   const [customerId, setCustomerId] = useState("");
@@ -49,7 +58,7 @@ export default function Transaction() {
   const [currencyObj, setCurrencyObj] = useState();
   const [transferTypeObj, setTransferObj] = useState();
   const [messageCode, setMessageCode] = useState("");
-  const [transferType, setTransferType] = useState();
+  const [transferType, setTransferType] = useState('');
   const [receiverName, setReceiverName] = useState();
   const [receiverId, setReceiverId] = useState();
 
@@ -79,6 +88,7 @@ export default function Transaction() {
       })
       .catch((err) => {
         console.log(err);
+       // setSenderBankVisibility(false);
       });
   };
 
@@ -147,9 +157,12 @@ export default function Transaction() {
       )
       .then((res) => {
         console.log(res);
+        navigation("/transactionResponse/"+res.data.transactionId)
+
       })
       .catch((err) => {
         console.log(err);
+        navigation("/errorMessage")
       });
   };
   const onChangeTranscation = (e) => {
@@ -160,24 +173,13 @@ export default function Transaction() {
     });
   };
 
-  // let validate=false
-  // const validateId=()=>{
-  //     if(customerId.length<=7){
-  //     setIdError("Id must be atleast 7 characters")
-  //     validate=true
-  //     }
-  // }
 
   const onChangeCustomer = (e) => {
     e.preventDefault();
 
-    //validating for 7 chars
-    // if(e.target.value.length<=7){
-    //   setIdError("Id must be atleast 8 characters")
-    // }
-
     if (e.target.value.length > 7) {
       setCustomerId(e.target.value);
+      setIdError(false)
     } else {
       setSenderBankVisibility(false);
       setSender({
@@ -205,13 +207,15 @@ export default function Transaction() {
   const onChangeReceiverBank = (e) => {
     e.preventDefault();
 
-    if (e.target.value.length > 10) {
+    if (e.target.value.length > 7) {
       setReceiverBankId(e.target.value);
+      
     } else {
       setReceiverBankDetails({
         bankId: "",
         bankName: "",
       });
+      
     }
   };
   const onChangeTransferType = (e) => {
@@ -219,6 +223,7 @@ export default function Transaction() {
     setTransferType(e.target.value);
     if (e.target.value != "Self") {
       setReceiverBankVisibility(true);
+      
     } else {
       setReceiverBankVisibility(false);
       setReceiverVisibility(false);
@@ -226,7 +231,15 @@ export default function Transaction() {
   };
   const onChangeReciverId = (e) => {
     e.preventDefault();
-    setReceiverId(e.target.value);
+    if(e.target.value.length>7){
+      setReceiverId(e.target.value);
+      setRecIdError(false);
+    }
+    else{
+      setRecIdError("Id must be atleast 8 characters");
+
+    }
+    
   };
   const onChangeMessageCode = (e) => {
     e.preventDefault();
@@ -258,8 +271,10 @@ export default function Transaction() {
               id="outlined-basic"
               label="Sender Id"
               variant="outlined"
-              onChange={onChangeCustomer}
               helperText={idError}
+              onChange={onChangeCustomer}
+
+              
             />
           </Form.Field>
         </Form>
@@ -268,8 +283,8 @@ export default function Transaction() {
       {senderBankVisibility && (
         <div class="card">
           <Form>
-            <h3>Sender name : {sender.senderName}</h3>
-            <h3>Sender balance : {sender.senderBalance}</h3>
+            <p>Sender name : {sender.senderName}</p>
+            <p>Sender balance : {sender.senderBalance}</p>
             <Form.Field>
               <h3>Sender Bank Details</h3>
               <label>Sender Bank Id </label>
@@ -302,9 +317,9 @@ export default function Transaction() {
               onChange={onChangeTransferType}
               label="transferType"
             >
-              <MenuItem value="Customer">Customer</MenuItem>
-              <MenuItem value="Bank">Bank</MenuItem>
-              <MenuItem value="Self">Self</MenuItem>
+              <MenuItem value={'Customer'}>Customer</MenuItem>
+              <MenuItem value={'Bank'}>Bank</MenuItem>
+              <MenuItem value={'Self'}>Self</MenuItem>
             </Select>
           </FormControl>
           <FormControl variant="standard" sx={{ m: 1, minWidth: 120 }}>
@@ -318,17 +333,36 @@ export default function Transaction() {
               onChange={onChangeMessageCode}
               label="messagecode"
             >
-              <MenuItem value={1}>CHQB</MenuItem>
-              <MenuItem value={0}>CORT</MenuItem>
-              <MenuItem value={3}>HOLD</MenuItem>
-              <MenuItem value={4}>INTC</MenuItem>
-              <MenuItem value={5}>PHOB</MenuItem>
-              <MenuItem value={6}>PHOI</MenuItem>
-              <MenuItem value={7}>PHON</MenuItem>
-              <MenuItem value={8}>REPA</MenuItem>
-              <MenuItem value={9}>SDVA</MenuItem>
+              <MenuItem value={'CHQB'}>CHQB</MenuItem>
+              <MenuItem value={'CORT'}>CORT</MenuItem>
+              <MenuItem value={'HOLD'}>HOLD</MenuItem>
+              <MenuItem value={'INTC'}>INTC</MenuItem>
+              <MenuItem value={'PHOB'}>PHOB</MenuItem>
+              <MenuItem value={'PHOI'}>PHOI</MenuItem>
+              <MenuItem value={'PHON'}>PHON</MenuItem>
+              <MenuItem value={'REPA'}>REPA</MenuItem>
+              <MenuItem value={'SDVA'}>SDVA</MenuItem>
             </Select>
           </FormControl>
+
+          <FormControl variant="standard" sx={{ m: 1, minWidth: 120 }}>
+            <InputLabel id="demo-simple-select-standard-label">
+              Currency
+            </InputLabel>
+            <Select
+              labelId="demo-simple-select-standard-label"
+              id="demo-simple-select-standard"
+              value={currencyCode}
+              onChange={onChangeCurrencyCode}
+              label="Currency"
+            >
+              <MenuItem value={'INR'}>INR</MenuItem>
+              <MenuItem value={'EUR'}>EUR</MenuItem>
+              <MenuItem value={'USD'}>USD</MenuItem>
+              <MenuItem value={'GBP'}>GBP</MenuItem>
+            </Select>
+            </FormControl>
+
           <Form.Field>
             <br></br>
             <label>Amount </label>
@@ -344,16 +378,17 @@ export default function Transaction() {
           </Form.Field>
           <Form.Field>
             <br></br>
-            <label>Currency </label>
+            {/* <label>Currency </label> */}
+            
             {/* <input name="currency" onChange={onChangeTranscation} /> */}
-            <TextField
+            {/* <TextField
               //  error={idError?true:false}
               id="outlined-basic"
               label="Currency"
               variant="outlined"
               value={currencyCode}
               onChange={onChangeCurrencyCode}
-            />
+            /> */}
           </Form.Field>{" "}
         </div>
       )}
@@ -366,10 +401,11 @@ export default function Transaction() {
               <label>Receiver Bank Id </label>
               {/* <input name="senderBankId" onChange={onChangeReceiverBank} /> */}
               <TextField
-                //  error={idError?true:false}
+                
                 id="outlined-basic"
                 label="Receiver bank id"
                 variant="outlined"
+               
                 onChange={onChangeReceiverBank}
               />
             </Form.Field>
@@ -378,24 +414,27 @@ export default function Transaction() {
       )}
 
       {receiverVisibility && (
+        <div class="card">
         <Form>
           <h3>Receiver bank name : {receiverBankDetails.bankName}</h3>
           <Form.Field>
-            <label>ReciverAccountHolderNumber </label>
+            <label>Reciver ID </label>
             {/* <input
               name="reciverAccountHolderNumber"
               onChange={onChangeTranscation}
             /> */}
             <TextField
-              //  error={idError?true:false}
+              error={recIdError?true:false}
               id="outlined-basic"
               label="Receiver account number"
               variant="outlined"
+              helperText={recIdError}
               onChange={onChangeReciverId}
             />
           </Form.Field>
+          <br></br>
           <Form.Field>
-            <label>ReceiverAccountHolderName </label>
+            <label>Receiver Name </label>
             {/* <input
               name="receiverAccountHolderName"
               onChange={onChangeTranscation}
@@ -409,11 +448,19 @@ export default function Transaction() {
             />
           </Form.Field>
 
-          <Button type="submit" onClick={sendDataToAPI}>
-            Submit
+            <br></br>
+          <Button variant="contained" type="submit" onClick={sendDataToAPI} style={{marginBottom:"20px",float:"right"}}>
+            Transfer <SendIcon/>
           </Button>
+
+          <br></br>
         </Form>
+        </div>
       )}
     </div>
   );
 }
+
+
+
+
