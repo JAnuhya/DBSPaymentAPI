@@ -27,7 +27,7 @@ function App() {
         <Routes>
         <Route path="/" element={<Transaction/>}/>
        <Route path="/transactionResponse/:id" element={<ShowTransaction/>}/>
-       <Route path="/errorMessage" element={<ErrorMessage/>}/>
+       <Route path="/errorMessage/:eid" element={<ErrorMessage/>}/>
        </Routes>
     </div>
     

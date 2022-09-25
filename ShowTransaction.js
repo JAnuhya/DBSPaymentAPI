@@ -24,9 +24,11 @@ export default function ShowTransaction(){
             setFlag(true)
             
         })
-
         .catch(err=>{
             console.log(err)
+            // if (err.response) {
+            //     console.log(err.response.data.message);
+            //    }
             setErrorFlag(true)
         })
     },[])
@@ -49,7 +51,7 @@ export default function ShowTransaction(){
                     {/* <h4>{JSON.stringify(transaction)}</h4> */}
                     
            
-                    <p>{console.log(transaction)}</p>
+                    {/* <p>{console.log(transaction)}</p> */}
                     <p>Sender Id : {transaction.customer.customerId}</p>
                     <p>Clear Balance : {Math.round(transaction.customer.clearBalance)}</p>
                     <p>Currency code : {transaction.currency.currencyCode}</p>

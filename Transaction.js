@@ -34,6 +34,8 @@ export default function Transaction() {
   const [idError, setIdError] = useState("");
   const [recIdError,setRecIdError]=useState("");
   const [bankIdError, setBankIdError] = useState("");
+  const [receiverBankIdError,setReceiverBankIdError]=useState("");
+  const [errorResponse,setErrorResponse]=useState("error");
 
   const [customerId, setCustomerId] = useState("");
   const [senderBankId, setSenderBankId] = useState("");
@@ -110,6 +112,7 @@ export default function Transaction() {
       })
       .catch((err) => {
         console.log(err);
+        //setSenderBankVisibility(false); //change2
       });
   };
   useEffect(() => {
@@ -130,6 +133,7 @@ export default function Transaction() {
       })
       .catch((err) => {
         console.log(err);
+        setReceiverVisibility(false);  //change1
         setReceiverBankDetails({
           bankId: "",
           bankName: "",
@@ -160,9 +164,29 @@ export default function Transaction() {
         navigation("/transactionResponse/"+res.data.transactionId)
 
       })
-      .catch((err) => {
-        console.log(err);
-        navigation("/errorMessage")
+      .catch((error) => {
+         //console.log(err);
+        //console.log(errorResponse);
+        // if (err.response) {
+      
+        //   console.log(err.response.data.message);
+        //   setErrorResponse(err.response.data.message);
+        //   //console.log(errorResponse);
+      
+        //  }
+        //  //console.log(errorResponse);
+        // navigation("/errorMessage/"+errorResponse)
+        if (error.response) {
+          console.log("hgcjbdscjs");
+         console.log(error.response.data.message);
+          console.log(error.response.status);
+          console.log(error.response.headers);
+        } else if (error.request) {
+          console.log(error.request);
+        } else {
+          // Something happened in setting up the request that triggered an Error
+          console.log("Error", error.message);
+        }
       });
   };
   const onChangeTranscation = (e) => {
@@ -195,6 +219,7 @@ export default function Transaction() {
     if (e.target.value.length > 10) {
       setSenderBankId(e.target.value);
       setTransferVisibility(true);
+      setBankIdError(false);
     } else {
       setReceiverBankVisibility(false);
       setSenderBankDetails({
@@ -207,15 +232,16 @@ export default function Transaction() {
   const onChangeReceiverBank = (e) => {
     e.preventDefault();
 
-    if (e.target.value.length > 7) {
+    if (e.target.value.length > 10) {
       setReceiverBankId(e.target.value);
+      setReceiverBankIdError(false);
       
     } else {
       setReceiverBankDetails({
         bankId: "",
         bankName: "",
       });
-      
+      setReceiverBankIdError("Id must be atleast 10 characters");
     }
   };
   const onChangeTransferType = (e) => {
@@ -264,7 +290,7 @@ export default function Transaction() {
         <Form>
           <Form.Field>
             <h3>Sender Details</h3>
-            <label>Sender Id </label>
+            <label class="form-label">Sender Id </label>
             {/* <input name="customerId" onChange={onChangeCustomer} /> */}
             <TextField
               error={idError ? true : false}
@@ -273,7 +299,7 @@ export default function Transaction() {
               variant="outlined"
               helperText={idError}
               onChange={onChangeCustomer}
-
+              
               
             />
           </Form.Field>
@@ -401,11 +427,11 @@ export default function Transaction() {
               <label>Receiver Bank Id </label>
               {/* <input name="senderBankId" onChange={onChangeReceiverBank} /> */}
               <TextField
-                
+                error={receiverBankIdError ? true : false}
                 id="outlined-basic"
                 label="Receiver bank id"
                 variant="outlined"
-               
+                helperText={receiverBankIdError}
                 onChange={onChangeReceiverBank}
               />
             </Form.Field>
